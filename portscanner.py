@@ -64,4 +64,15 @@ ventana.geometry("400x350")
 
 tk.Label(ventana, text="Dirección IP:").pack(pady=5)
 
-entrada_ip = tk.En_
+entrada_ip = tk.Entry(ventana)
+entrada_ip.pack()
+
+tk.Button(ventana, text="Escanear", command=iniciar_escaneo).pack(pady=10)
+
+progreso = ttk.Progressbar(ventana)
+progreso.pack(fill="x", padx=20, pady=5)
+
+salida = tk.Text(ventana, height=10)
+salida.pack(fill="both", padx=10, pady=10)
+
+ventana.mainloop()
