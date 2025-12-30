@@ -8,3 +8,9 @@ for puerto in range (1.65535):
     sock.settimeout(5)
 
     result = sock.connect_ex((ip, puerto))
+
+    if result == 0:
+        print("Puerto Abierto: " + puerto)
+        sock.close()
+    else:
+        print("Puerto Cerrado: " + puerto)
