@@ -1,16 +1,67 @@
 import socket
+import tkinter as tk
+from tkinter import ttk
+from concurrent.futures import ThreadPoolExecutor
 
-ip = input("ingrese la dirección IP a escanear: ")
-
-for puerto in range (1.65535):
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(5)
-
-    result = sock.connect_ex((ip, puerto))
-
-    if result == 0:
-        print("Puerto Abierto: " + puerto)
+# -------------------------
+# FUNCIÓN: escanear un puerto
+# -------------------------
+def escanear_puerto(ip, puerto):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.3)  # timeout pequeño = rápido
+        resultado = sock.connect_ex((ip, puerto))
         sock.close()
+
+        if resultado == 0:
+            return puerto
+    except:
+        pass
+
+    return None
+
+
+# -------------------------
+# FUNCIÓN: iniciar escaneo
+# -------------------------
+def iniciar_escaneo():
+    ip = entrada_ip.get()
+    salida.delete(1.0, tk.END)
+
+    puertos = range(1, 1025)  # puertos básicos (principiante)
+    total = len(puertos)
+    progreso["maximum"] = total
+    progreso["value"] = 0
+
+    salida.insert(tk.END, f"Escaneando {ip}...\n\n")
+
+    abiertos = []
+
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        for puerto in puertos:
+            resultado = executor.submit(escanear_puerto, ip, puerto)
+
+            # actualizar progreso
+            progreso["value"] += 1
+            ventana.update_idletasks()
+
+            if resultado.result():
+                abiertos.append(resultado.result())
+
+    if abiertos:
+        for p in abiertos:
+            salida.insert(tk.END, f"[+] Puerto abierto: {p}\n")
     else:
-        print("Puerto Cerrado: " + puerto)
+        salida.insert(tk.END, "No se encontraron puertos abiertos\n")
+
+
+# -------------------------
+# INTERFAZ GRÁFICA
+# -------------------------
+ventana = tk.Tk()
+ventana.title("Port Scanner - Principiante")
+ventana.geometry("400x350")
+
+tk.Label(ventana, text="Dirección IP:").pack(pady=5)
+
+entrada_ip = tk.En_
